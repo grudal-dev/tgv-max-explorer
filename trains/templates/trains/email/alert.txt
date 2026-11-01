@@ -1,0 +1,13 @@
+{% autoescape off %}Bonne nouvelle !
+
+Des places MAX viennent d'apparaître pour {{ alert.origin }} → {{ alert.destination }} le {{ alert.date|date:"l j F Y" }} :
+{% for t in trips %}
+  • {{ t.departure_time|time:"H:i" }} → {{ t.arrival_time|time:"H:i" }} ({{ t.duration_display }}) — {{ t.entity|default:"Train" }} {{ t.train_no }}{% endfor %}
+
+Réserve vite sur SNCF Connect : les places partent rapidement.
+
+Voir ton alerte : {{ site_url }}{% url 'trains:alert_detail' alert.token %}
+Désactiver l'alerte : {{ site_url }}{{ alert.get_unsubscribe_url }}
+
+— TGV MAX Explorer
+{% endautoescape %}

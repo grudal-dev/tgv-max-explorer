@@ -1,0 +1,46 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TGV MAX Explorer{% endblock %}</title>
+  <meta name="description" content="Toutes les places TGVmax disponibles sur une carte de France.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚄</text></svg>">
+  <link rel="stylesheet" href="{% static 'trains/vendor/leaflet/leaflet.css' %}">
+  <link rel="stylesheet" href="{% static 'trains/app.css' %}">
+  <script src="{% static 'trains/vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'trains/vendor/leaflet/leaflet.js' %}" defer></script>
+  <script src="{% static 'trains/app.js' %}" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <header class="topbar">
+    <a class="brand" href="{% url 'trains:search' %}">
+      <span class="brand-mark" aria-hidden="true">MAX</span>
+      <span>TGV MAX <strong>Explorer</strong></span>
+    </a>
+    {% with u=request.resolver_match.url_name %}
+    <nav class="nav">
+      <a href="{% url 'trains:search' %}" {% if u == 'search' %}aria-current="page"{% endif %}>Carte</a>
+      <a href="{% url 'trains:weekend' %}" {% if u == 'weekend' %}aria-current="page"{% endif %}>Week-end</a>
+      <a href="{% url 'trains:alert_create' %}" {% if u == 'alert_create' or u == 'alert_detail' %}aria-current="page"{% endif %}>Alertes</a>
+      <a href="{% url 'trains:about' %}" {% if u == 'about' %}aria-current="page"{% endif %}>À propos</a>
+    </nav>
+    {% endwith %}
+    <div class="sync" title="Dernière synchronisation des données">
+      {% if last_sync %}
+        <span class="dot dot-ok"></span> Données du {{ last_sync.finished_at|date:"d/m à H:i" }}{% if last_sync.source == "demo" %} <em>(démo)</em>{% endif %}
+      {% else %}
+        <span class="dot dot-ko"></span> Aucune donnée
+      {% endif %}
+    </div>
+  </header>
+
+  {% if messages %}
+  <div class="flash-stack">
+    {% for m in messages %}<div class="flash flash-{{ m.tags }}" role="status">{{ m }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</body>
+</html>

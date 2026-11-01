@@ -1,0 +1,25 @@
+{% extends "trains/base.html" %}
+{% load humanize %}
+{% block title %}À propos · TGV MAX Explorer{% endblock %}
+{% block content %}
+<main class="page">
+  <div class="page-card">
+    <h1>À propos</h1>
+    <p class="lead">TGV MAX Explorer affiche sur une carte toutes les places MAX JEUNE / MAX SENIOR ouvertes à la réservation dans les 30 prochains jours.</p>
+    <div class="stats">
+      <div><strong>{{ stats.total|intcomma }}</strong><span>trajets en base</span></div>
+      <div><strong>{{ stats.available|intcomma }}</strong><span>avec place MAX</span></div>
+      <div><strong>{{ stations }}</strong><span>gares</span></div>
+    </div>
+    <h2 class="section-title">Source</h2>
+    <p>Jeu de données open data SNCF <a href="https://ressources.data.sncf.com/explore/dataset/tgvmax/" target="_blank" rel="noopener">« Disponibilité à 30 jours de places MAX JEUNE et MAX SENIOR »</a>, mis à jour chaque matin (licence ODbL). Une place affichée peut être partie entre deux mises à jour : vérifie toujours sur SNCF Connect avant de partir.</p>
+    {% if last_sync %}<p class="muted">Dernière synchronisation : {{ last_sync.finished_at|date:"d/m/Y H:i" }} — {{ last_sync.records|intcomma }} enregistrements.</p>{% endif %}
+    {% if no_coords %}
+    <h2 class="section-title">Gares sans coordonnées</h2>
+    <p class="muted">Elles apparaissent dans les listes mais pas sur la carte. Lance <code>python manage.py geocode_stations</code> ou complète-les dans l'<a href="/admin/trains/station/?latitude__isempty=1">admin</a>.</p>
+    <p>{{ no_coords|join:", " }}</p>
+    {% endif %}
+    <p class="muted small">Fonds de carte © OpenStreetMap, © CARTO. Projet non affilié à la SNCF.</p>
+  </div>
+</main>
+{% endblock %}

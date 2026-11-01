@@ -1,0 +1,38 @@
+{% extends "trains/base.html" %}
+{% block title %}Week-end aller-retour · TGV MAX Explorer{% endblock %}
+{% block body_class %}app-map{% endblock %}
+{% block content %}
+<main class="layout">
+  <aside class="panel">
+    <div class="panel-intro">
+      <h1>Week-end aller-retour</h1>
+      <p>Les villes où tu as <strong>à la fois</strong> un aller et un retour avec place MAX.</p>
+    </div>
+    <form id="search-form" class="filters" method="get" action="{% url 'trains:weekend' %}"
+          hx-get="{% url 'trains:weekend' %}" hx-target="#results" hx-push-url="true"
+          hx-trigger="change, submit" hx-indicator="#results">
+      <div class="field"><label for="id_origin">{{ form.origin.label }}</label>{{ form.origin }}</div>
+      <div class="field-row">
+        <div class="field"><label for="id_out_date">Aller</label>{{ form.out_date }}</div>
+        <div class="field"><label for="id_out_after">Après</label>{{ form.out_after }}</div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="id_back_date">Retour</label>{{ form.back_date }}</div>
+        <div class="field"><label for="id_back_after">Après</label>{{ form.back_after }}</div>
+      </div>
+      <div class="field"><label for="id_max_duration">Durée max du trajet</label>{{ form.max_duration }}</div>
+      <div class="quick">
+        <button type="button" class="chip" data-weekend="fri-sun">Ven → Dim</button>
+        <button type="button" class="chip" data-weekend="sat-sun">Sam → Dim</button>
+        <button type="button" class="chip" data-weekend="fri-mon">Ven → Lun</button>
+        <button type="button" class="chip" data-weekend="day">Aller-retour dans la journée</button>
+      </div>
+      <noscript><button type="submit" class="btn">Rechercher</button></noscript>
+    </form>
+    <div id="results" class="results">
+      {% include "trains/partials/weekend_results.html" %}
+    </div>
+  </aside>
+  <section class="map-wrap"><div id="map" aria-label="Carte des destinations"></div></section>
+</main>
+{% endblock %}

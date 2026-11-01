@@ -1,0 +1,11 @@
+<li class="trip{% if not trip.available %} trip-full{% endif %}">
+  <span class="t-time">{{ trip.departure_time|time:"H:i" }}</span>
+  <span class="t-line" aria-hidden="true">→</span>
+  <span class="t-time">{{ trip.arrival_time|time:"H:i" }}{% if trip.overnight %}<sup>+1</sup>{% endif %}</span>
+  <span class="t-dur">{{ trip.duration_display }}</span>
+  <span class="t-meta">
+    {% if show_stations %}<span class="t-stations">{{ trip.origin }} → {{ trip.destination }}</span>{% endif %}
+    {{ trip.entity|default:"Train" }} {{ trip.train_no }}
+  </span>
+  {% if trip.available %}<span class="badge badge-ok">MAX</span>{% else %}<span class="badge badge-full">Complet</span>{% endif %}
+</li>

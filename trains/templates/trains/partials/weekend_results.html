@@ -1,0 +1,32 @@
+{{ map_data|json_script:"map-data" }}
+{% if not has_data %}
+  {% include "trains/_empty_db.html" %}
+{% elif not form.is_bound %}
+  <p class="hint">Choisis ta gare de départ pour voir où partir.</p>
+{% elif form.errors %}
+  <div class="notice notice-error">{{ form.non_field_errors }}{% for f in form %}{% if f.errors %}{{ f.label }} : {{ f.errors|join:", " }}<br>{% endif %}{% endfor %}</div>
+{% else %}
+  <p class="count"><strong>{{ results|length }}</strong> destination{{ results|length|pluralize }} ·
+    {{ out_date|date:"D j M" }} → {{ back_date|date:"D j M" }}{% if nights %} ({{ nights }} nuit{{ nights|pluralize }}){% endif %}</p>
+  {% if results %}
+  <ul class="cards">
+    {% for r in results %}
+    <li>
+      <details class="card" data-slug="{{ r.station.slug }}">
+        <summary>
+          <span class="card-title">{{ r.station }}</span>
+          <span class="card-dur">{{ r.best_duration_display }}</span>
+          <span class="card-meta">{{ r.outbound|length }} aller{{ r.outbound|length|pluralize }} · {{ r.inbound|length }} retour{{ r.inbound|length|pluralize }}</span>
+        </summary>
+        <h3 class="leg-title">Aller · {{ out_date|date:"l j" }}</h3>
+        <ul class="trips">{% for trip in r.outbound %}{% include "trains/partials/trip_row.html" %}{% endfor %}</ul>
+        <h3 class="leg-title">Retour · {{ back_date|date:"l j" }}</h3>
+        <ul class="trips">{% for trip in r.inbound %}{% include "trains/partials/trip_row.html" %}{% endfor %}</ul>
+      </details>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <div class="notice">Aucun aller-retour complet avec place MAX sur ces dates. Essaie d'élargir les horaires.</div>
+  {% endif %}
+{% endif %}

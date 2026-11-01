@@ -1,0 +1,137 @@
+{% load humanize %}
+{{ map_data|json_script:"map-data" }}
+{% if not has_data %}
+  {% include "trains/_empty_db.html" %}
+{% elif not form.is_valid %}
+  <div class="notice notice-error">{{ form.errors }}</div>
+{% else %}
+
+<div class="results-head">
+  <div>
+    <h1 class="results-title">
+      {% if mode == "route" %}{{ origin }} <span class="arrow">→</span> {{ destination }}
+      {% elif mode == "from" %}Au départ de {{ origin }}
+      {% elif mode == "to" %}Pour aller à {{ destination }}
+      {% else %}Où partir ?{% endif %}
+    </h1>
+    <p class="results-sub">{{ day|date:"l j F Y"|capfirst }}</p>
+  </div>
+</div>
+
+{% if mode == "overview" %}
+  {% if overview %}
+    <p class="hint">Choisis une gare de départ — sur la carte ou ci-dessous.</p>
+    <ul class="cards">
+      {% for o in overview %}
+      <li>
+        <button type="button" class="card card-btn" data-pick-origin="{{ o.station.slug }}" data-slug="{{ o.station.slug }}">
+          <span class="card-title">{{ o.station }}</span>
+          <span class="card-meta">{{ o.dests }} destination{{ o.dests|pluralize }} · {{ o.count }} trajet{{ o.count|pluralize }} MAX</span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="notice">Aucune place MAX ce jour-là avec ces filtres. Essaie un autre jour.</div>
+  {% endif %}
+
+{% elif mode == "from" or mode == "to" %}
+  <p class="count"><strong>{{ groups|length }}</strong> destination{{ groups|length|pluralize }}
+    {% if mode == "to" %}d'origine{% endif %} en direct</p>
+  {% if groups %}
+  <ul class="cards">
+    {% for g in groups %}
+    <li>
+      <details class="card" data-slug="{{ g.station.slug }}">
+        <summary>
+          <span class="card-title">{{ g.station }}</span>
+          <span class="card-dur">{{ g.best_duration_display }}</span>
+          <span class="card-meta">{{ g.count }} train{{ g.count|pluralize }} · 1<sup>er</sup> à {{ g.first_departure|time:"H:i" }}{% if not g.station.has_coordinates %} · <em>hors carte</em>{% endif %}</span>
+        </summary>
+        <ul class="trips">
+          {% for trip in g.trips %}{% include "trains/partials/trip_row.html" %}{% endfor %}
+        </ul>
+        <div class="card-actions">
+          {% if mode == "from" %}
+          <button type="button" class="link" data-pick-destination="{{ g.station.slug }}">Voir uniquement ce trajet</button>
+          {% else %}
+          <button type="button" class="link" data-pick-origin="{{ g.station.slug }}">Partir de {{ g.station }}</button>
+          {% endif %}
+        </div>
+      </details>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <div class="notice">Aucun direct avec une place MAX ce jour-là.
+      {% if not form.connections.value %}<button type="button" class="link" data-enable-connections>Chercher avec correspondance</button>{% endif %}
+    </div>
+  {% endif %}
+
+{% elif mode == "route" %}
+  {% if trips %}
+    <p class="count"><strong>{{ available_count }}</strong> train{{ available_count|pluralize }} avec place MAX{% if trips|length != available_count %} sur {{ trips|length }}{% endif %}</p>
+    <ul class="trips trips-standalone">
+      {% for trip in trips %}{% include "trains/partials/trip_row.html" %}{% endfor %}
+    </ul>
+  {% else %}
+    <div class="notice">Aucun train direct avec place MAX ce jour-là.</div>
+  {% endif %}
+  <a class="btn btn-ghost btn-block" href="{% url 'trains:alert_create' %}?origin={{ origin.slug }}&destination={{ destination.slug }}&date={{ day|date:'Y-m-d' }}">
+    🔔 M'alerter si une place se libère
+  </a>
+{% endif %}
+
+{% if connection_groups is not None %}
+<section class="conn-section">
+  <h2 class="section-title">Avec 1 correspondance <span class="muted">{{ connection_groups|length }}</span></h2>
+  {% if connection_groups %}
+  <ul class="cards">
+    {% for g in connection_groups %}
+    <li>
+      <details class="card card-conn" data-slug="{{ g.station.slug }}">
+        <summary>
+          <span class="card-title">{{ g.station }}</span>
+          <span class="card-dur">{{ g.best.total_display }}</span>
+          <span class="card-meta">via {{ g.best.via }} · {{ g.options|length }} option{{ g.options|length|pluralize }}</span>
+        </summary>
+        <ul class="conns">
+          {% for c in g.options %}
+          <li class="conn">
+            <div class="conn-leg">
+              <span class="t-time">{{ c.first.departure_time|time:"H:i" }}</span>
+              <span class="conn-st">{{ c.origin }}</span>
+              <span class="muted">{{ c.first.train_no }}</span>
+            </div>
+            <div class="conn-via">
+              <span class="t-time">{{ c.first.arrival_dt|time:"H:i" }}</span>
+              <span class="conn-st">{{ c.via }}</span>
+              <span class="wait">⏱ {{ c.wait_display }}</span>
+            </div>
+            <div class="conn-leg">
+              <span class="t-time">{{ c.second.departure_time|time:"H:i" }}</span>
+              <span class="conn-st">↳ {{ c.via }}</span>
+              <span class="muted">{{ c.second.train_no }}</span>
+            </div>
+            <div class="conn-end">
+              <span class="t-time">{{ c.second.arrival_dt|time:"H:i" }}{% if c.second.arrival_dt.date > day %}<sup>+1</sup>{% endif %}</span>
+              <span class="conn-st">{{ c.destination }}</span>
+              <span class="t-dur">{{ c.total_display }}</span>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <div class="notice">Aucune correspondance trouvée.</div>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if missing_coords %}
+<p class="muted small">Non affichées sur la carte (coordonnées inconnues) : {{ missing_coords|join:", " }}.</p>
+{% endif %}
+{% endif %}

@@ -1,0 +1,13 @@
+{% extends "trains/base.html" %}
+{% block content %}
+<main class="page">
+  <div class="page-card">
+    <h1>Désactiver l'alerte ?</h1>
+    <p class="lead">{{ alert.origin }} → {{ alert.destination }} le {{ alert.date|date:"d/m/Y" }}</p>
+    {% if alert.active %}
+    <form method="post">{% csrf_token %}<button class="btn btn-danger" type="submit">Oui, désactiver</button>
+      <a class="btn btn-ghost" href="{% url 'trains:alert_detail' alert.token %}">Annuler</a></form>
+    {% else %}<p>Cette alerte est déjà désactivée.</p>{% endif %}
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "trains/base.html" %}
+{% block body_class %}app-map{% endblock %}
+{% block content %}
+<main class="layout">
+  <aside class="panel">
+    <form id="search-form" class="filters" method="get" action="{% url 'trains:search' %}"
+          hx-get="{% url 'trains:search' %}" hx-target="#results" hx-push-url="true"
+          hx-trigger="change, submit" hx-indicator="#results">
+      <div class="field-row">
+        <div class="field">
+          <label for="id_origin">Départ</label>
+          {{ form.origin }}
+        </div>
+        <button type="button" class="swap" data-swap title="Inverser départ / arrivée" aria-label="Inverser départ et arrivée">⇅</button>
+        <div class="field">
+          <label for="id_destination">Arrivée</label>
+          {{ form.destination }}
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="id_date">Date</label>
+          <div class="date-nav">
+            <button type="button" data-date-step="-1" aria-label="Jour précédent">‹</button>
+            {{ form.date }}
+            <button type="button" data-date-step="1" aria-label="Jour suivant">›</button>
+          </div>
+        </div>
+      </div>
+      <details class="more" {% if form.after.value or form.before.value or form.max_duration.value %}open{% endif %}>
+        <summary>Filtres</summary>
+        <div class="field-row">
+          <div class="field"><label for="id_after">Départ après</label>{{ form.after }}</div>
+          <div class="field"><label for="id_before">Départ avant</label>{{ form.before }}</div>
+          <div class="field"><label for="id_max_duration">Durée</label>{{ form.max_duration }}</div>
+        </div>
+      </details>
+      <div class="toggles">
+        <label class="toggle">{{ form.connections }} <span>Avec 1 correspondance</span></label>
+        <label class="toggle">{{ form.show_full }} <span>Trains complets</span></label>
+      </div>
+      <noscript><button type="submit" class="btn">Rechercher</button></noscript>
+    </form>
+
+    <div id="results" class="results">
+      {% include "trains/partials/results.html" %}
+    </div>
+  </aside>
+  <section class="map-wrap">
+    <div id="map" aria-label="Carte des trajets"></div>
+    <div class="legend">
+      <span><i class="lg lg-direct"></i>Direct</span>
+      <span><i class="lg lg-conn"></i>1 correspondance</span>
+    </div>
+  </section>
+</main>
+{% endblock %}

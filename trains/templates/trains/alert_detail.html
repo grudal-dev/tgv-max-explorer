@@ -1,0 +1,30 @@
+{% extends "trains/base.html" %}
+{% block title %}Mon alerte · TGV MAX Explorer{% endblock %}
+{% block content %}
+<main class="page">
+  <div class="page-card">
+    <p class="eyebrow">{% if alert.active %}Alerte active{% else %}Alerte désactivée{% endif %}</p>
+    <h1>{{ alert.origin }} → {{ alert.destination }}</h1>
+    <p class="lead">{{ alert.date|date:"l j F Y"|capfirst }}{% if alert.earliest or alert.latest %} · départ {% if alert.earliest %}après {{ alert.earliest|time:"H:i" }}{% endif %} {% if alert.latest %}avant {{ alert.latest|time:"H:i" }}{% endif %}{% endif %}</p>
+    <p>E-mails envoyés à <strong>{{ alert.email }}</strong>.</p>
+
+    <h2 class="section-title">En ce moment</h2>
+    {% if trips %}
+      <ul class="trips trips-standalone">{% for trip in trips %}{% include "trains/partials/trip_row.html" %}{% endfor %}</ul>
+    {% else %}
+      <div class="notice">Aucune place MAX pour l'instant{% if full_trips %} ({{ full_trips }} train{{ full_trips|pluralize }} complet{{ full_trips|pluralize }}){% endif %}. On te prévient dès que ça bouge.</div>
+    {% endif %}
+
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'trains:search' %}?origin={{ alert.origin.slug }}&destination={{ alert.destination.slug }}&date={{ alert.date|date:'Y-m-d' }}&show_full=on">Voir sur la carte</a>
+      {% if alert.active %}<a class="btn btn-danger-ghost" href="{% url 'trains:alert_unsubscribe' alert.token %}">Désactiver</a>{% endif %}
+    </div>
+    <p class="muted small">Garde cette page en favori pour gérer ton alerte : son adresse est privée.</p>
+
+    {% if others %}
+    <h2 class="section-title">Tes autres alertes actives</h2>
+    <ul class="plain">{% for o in others %}<li><a href="{% url 'trains:alert_detail' o.token %}">{{ o.origin }} → {{ o.destination }} · {{ o.date|date:"d/m" }}</a></li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}
