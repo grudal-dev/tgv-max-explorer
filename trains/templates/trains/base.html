@@ -42,5 +42,6 @@
   {% endif %}
 
   {% block content %}{% endblock %}
+  {{ map_tiles|json_script:"map-tiles" }}
 </body>
 </html>

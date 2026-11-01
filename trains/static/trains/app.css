@@ -200,6 +200,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand-2)
 @keyframes flash-out { to { opacity: 0; visibility: hidden; } }
 
 /* --- Carte --- */
+.tiles-soft { filter: grayscale(.85) brightness(1.06) contrast(.92); }
 .legend {
   position: absolute; right: 12px; bottom: 24px; z-index: 500; background: rgba(255,255,255,.95);
   border-radius: 10px; padding: 7px 11px; font-size: 12px; display: flex; gap: 14px; box-shadow: var(--shadow); color: var(--ink-2);

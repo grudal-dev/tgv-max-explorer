@@ -64,6 +64,14 @@ alertes, deux synchros par jour donnent une meilleure réactivité.
 - **Windows** : Planificateur de tâches → action `C:\chemin\.venv\Scripts\python.exe`,
   arguments `manage.py sync_tgvmax`, dossier de départ `C:\chemin\tgv-max-explorer`.
 
+### Fond de carte
+
+Par défaut, la carte utilise les tuiles OpenStreetMap (aucune clé requise), passées en
+niveaux de gris pour faire ressortir les trajets. Pour le style CARTO, plus épuré, demande
+une clé gratuite sur [carto.com/basemaps/apikey](https://carto.com/basemaps/apikey/) et ajoute
+`CARTO_API_KEY=...` dans `.env`. Depuis août 2026, CARTO affiche « API KEY REQUIRED » sur les
+tuiles demandées sans clé.
+
 ### Alertes e-mail
 
 Sans configuration, les e-mails s'affichent dans la console (pratique en local). Pour un vrai envoi,
@@ -105,4 +113,4 @@ python manage.py test trains
   Les gares inconnues apparaissent dans les listes mais pas sur la carte. Lance `geocode_stations`
   ou complète-les dans l'admin.
 
-Projet non affilié à la SNCF. Fonds de carte © OpenStreetMap, © CARTO.
+Projet non affilié à la SNCF. Fonds de carte © OpenStreetMap (© CARTO si activé).

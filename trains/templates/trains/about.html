@@ -19,7 +19,7 @@
     <p class="muted">Elles apparaissent dans les listes mais pas sur la carte. Lance <code>python manage.py geocode_stations</code> ou complète-les dans l'<a href="/admin/trains/station/?latitude__isempty=1">admin</a>.</p>
     <p>{{ no_coords|join:", " }}</p>
     {% endif %}
-    <p class="muted small">Fonds de carte © OpenStreetMap, © CARTO. Projet non affilié à la SNCF.</p>
+    <p class="muted small">Fonds de carte © OpenStreetMap{% if map_tiles.carto %}, © CARTO{% endif %}. Projet non affilié à la SNCF.</p>
   </div>
 </main>
 {% endblock %}

@@ -21,11 +21,14 @@
     if (!el || typeof L === "undefined") return;
     map = L.map(el, { zoomControl: false, preferCanvas: false, minZoom: 4 }).fitBounds(FRANCE);
     L.control.zoom({ position: "topright" }).addTo(map);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd",
+    const tiles = readJson("map-tiles") || {};
+    const tileLayer = L.tileLayer(tiles.url || "https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: tiles.subdomains || "abc",
+      attribution: tiles.attribution || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
+    // Fond OpenStreetMap un peu plus doux pour faire ressortir les trajets.
+    if (!tiles.carto) tileLayer.getContainer().classList.add("tiles-soft");
     layer = L.layerGroup().addTo(map);
     map.on("zoomend", updateLabelVisibility);
     render();
@@ -45,11 +48,13 @@
     return pts;
   }
 
-  function readData() {
-    const node = $("#map-data");
+  function readJson(id) {
+    const node = document.getElementById(id);
     if (!node) return null;
     try { return JSON.parse(node.textContent); } catch (e) { return null; }
   }
+
+  function readData() { return readJson("map-data"); }
 
   function render() {
     if (!map) return;

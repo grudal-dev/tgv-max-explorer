@@ -68,6 +68,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "trains.context_processors.last_sync",
+                "trains.context_processors.map_tiles",
             ],
         },
     },
@@ -122,6 +123,29 @@ TGVMAX_DATASET = os.environ.get("TGVMAX_DATASET", "tgvmax")
 # Correspondances : temps minimum / maximum en gare (minutes)
 CONNECTION_MIN_MINUTES = int(os.environ.get("CONNECTION_MIN_MINUTES", 20))
 CONNECTION_MAX_MINUTES = int(os.environ.get("CONNECTION_MAX_MINUTES", 120))
+
+# --- Fond de carte -------------------------------------------------------------
+# CARTO exige une clé API (gratuite) depuis août 2026 : https://carto.com/basemaps/apikey/
+# Sans clé, on utilise les tuiles OpenStreetMap standard (aucune clé requise).
+CARTO_API_KEY = os.environ.get("CARTO_API_KEY", "")
+CARTO_STYLE = os.environ.get("CARTO_STYLE", "light_all")  # light_all, voyager, dark_all
+if CARTO_API_KEY:
+    MAP_TILE_URL = (
+        f"https://{{s}}.basemaps.cartocdn.com/rastertiles/{CARTO_STYLE}/{{z}}/{{x}}/{{y}}{{r}}.png"
+        f"?key={CARTO_API_KEY}"
+    )
+    MAP_TILE_ATTRIBUTION = (
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+        '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+    )
+    MAP_TILE_SUBDOMAINS = "abcd"
+else:
+    MAP_TILE_URL = os.environ.get("MAP_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+    MAP_TILE_ATTRIBUTION = os.environ.get(
+        "MAP_TILE_ATTRIBUTION",
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    )
+    MAP_TILE_SUBDOMAINS = ""
 
 LOGGING = {
     "version": 1,
